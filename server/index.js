@@ -4,6 +4,7 @@ const http = require("http");
 const cors = require("cors");
 const mysql = require("mysql");
 const { Server } = require("socket.io");
+const port = process.env.PORT || 3001;
 
 app.use(cors());
 const server = http.createServer(app);
@@ -23,7 +24,8 @@ db.connect((err) => {
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    // origin: "http://localhost:3000",
+    origin: "https://chat-khai.netlify.app/",
     method: ["GET", "POST"],
   },
 });
@@ -106,6 +108,10 @@ app.post("/get_messages", function (request, result) {
   );
 });
 
-server.listen(3001, () => {
+app.get("/", (req, res) => {
+  res.send("Hello from Express!");
+});
+
+server.listen(port, () => {
   console.log("server running");
 });
