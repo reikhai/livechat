@@ -17,10 +17,10 @@ const db = mysql.createConnection({
   port: 3308,
 });
 
-db.connect((err) => {
-  if (err) throw err;
-  console.log("Connected to MySQL Server!");
-});
+// db.connect((err) => {
+//   if (err) throw err;
+//   console.log("Connected to MySQL Server!");
+// });
 
 const io = new Server(server, {
   cors: {
