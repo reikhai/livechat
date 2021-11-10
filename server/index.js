@@ -25,7 +25,7 @@ const db = mysql.createConnection({
 const io = new Server(server, {
   cors: {
     // origin: "http://localhost:3000",
-    origin: "https://chat-khai.netlify.app/",
+    origin: "https://chat-khai.netlify.app",
     method: ["GET", "POST"],
   },
 });
