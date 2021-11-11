@@ -17,15 +17,15 @@ const db = mysql.createConnection({
   port: 3308,
 });
 
-db.connect((err) => {
-  if (err) throw err;
-  console.log("Connected to MySQL Server!");
-});
+// db.connect((err) => {
+//   if (err) throw err;
+//   console.log("Connected to MySQL Server!");
+// });
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
-    // origin: "https://chat-khai.netlify.app",
+    // origin: "http://localhost:3000",
+    origin: "https://chat-khai.netlify.app",
     method: ["GET", "POST"],
   },
 });
@@ -58,19 +58,19 @@ io.on("connection", (socket) => {
           socket.to(id).emit("receive_message", data);
         });
 
-      db.query(
-        "INSERT INTO messages (sender, receiver, message) VALUES ('" +
-          data.sender +
-          "', '" +
-          data.receiver +
-          "', '" +
-          data.message +
-          "')",
-        function (error, result) {
-          // console.log(error);
-          //
-        }
-      );
+      // db.query(
+      //   "INSERT INTO messages (sender, receiver, message) VALUES ('" +
+      //     data.sender +
+      //     "', '" +
+      //     data.receiver +
+      //     "', '" +
+      //     data.message +
+      //     "')",
+      //   function (error, result) {
+      //     // console.log(error);
+      //     //
+      //   }
+      // );
     });
   });
 
@@ -91,21 +91,21 @@ app.use(function (request, result, next) {
 // create api to return all messages
 app.post("/get_messages", function (request, result) {
   // get all messages from database
-  db.query(
-    "SELECT sender,receiver,send_at as time,message FROM messages WHERE (sender = '" +
-      request.body.sender +
-      "' AND receiver = '" +
-      request.body.receiver +
-      "') OR (sender = '" +
-      request.body.receiver +
-      "' AND receiver = '" +
-      request.body.sender +
-      "')",
-    function (error, messages) {
-      // response will be in JSON
-      result.end(JSON.stringify(messages));
-    }
-  );
+  // db.query(
+  //   "SELECT sender,receiver,send_at as time,message FROM messages WHERE (sender = '" +
+  //     request.body.sender +
+  //     "' AND receiver = '" +
+  //     request.body.receiver +
+  //     "') OR (sender = '" +
+  //     request.body.receiver +
+  //     "' AND receiver = '" +
+  //     request.body.sender +
+  //     "')",
+  //   function (error, messages) {
+  //     // response will be in JSON
+  //     result.end(JSON.stringify(messages));
+  //   }
+  // );
 });
 
 app.get("/", (req, res) => {

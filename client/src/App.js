@@ -3,7 +3,8 @@ import io from "socket.io-client";
 import { useState } from "react";
 import Chat from "./chat";
 
-const socket = io.connect("http://localhost:3001");
+// const socket = io.connect("http://localhost:3001");
+const socket = io.connect("https://chat-server-ms.herokuapp.com/");
 
 function App() {
   const [username, setUsername] = useState("");
@@ -12,28 +13,28 @@ function App() {
   const [chatData, setChatData] = useState([]);
 
   const joinRoom = () => {
-    const url = "http://localhost:3001/get_messages";
+    // const url = "http://localhost:3001/get_messages";
 
-    let data = {
-      sender: username,
-      receiver: receiver,
-    };
+    // let data = {
+    //   sender: username,
+    //   receiver: receiver,
+    // };
 
-    var request = new Request(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(data),
-    });
+    // var request = new Request(url, {
+    //   method: "POST",
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //   },
+    //   body: JSON.stringify(data),
+    // });
 
     if (username !== "" && receiver !== "") {
       socket.emit("join_room", username + "--with--" + receiver);
 
       setShowChat(true);
-      fetch(request)
-        .then((response) => response.json())
-        .then((data) => setChatData(data));
+      // fetch(request)
+      //   .then((response) => response.json())
+      //   .then((data) => setChatData(data));
     }
   };
 
