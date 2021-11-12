@@ -211,3 +211,7 @@ button:hover i {
   animation-name: fadeInUp;
   -webkit-animation-name: fadeInUp;
 }
+
+.online-font {
+  font-size: 8px;
+}

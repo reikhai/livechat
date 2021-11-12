@@ -8,6 +8,7 @@ const port = process.env.PORT || 3001;
 
 app.use(cors());
 const server = http.createServer(app);
+const users = {};
 
 const db = mysql.createConnection({
   host: "localhost",
@@ -31,15 +32,10 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  socket.on("join_room", (data) => {
-    socket.join(data);
-  });
-
   socket.on("join_room", (roomName) => {
     let split = roomName.split("--with--"); // ['username2', 'username1']
 
     let unique = [...new Set(split)].sort((a, b) => (a < b ? -1 : 1)); // ['username1', 'username2']
-
     let updatedRoomName = `${unique[0]}--with--${unique[1]}`; // 'username1--with--username2'
 
     Array.from(socket.rooms)
@@ -74,8 +70,21 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on("login", (data) => {
+    users[data] = socket.id;
+    socket.emit("online", JSON.stringify(users));
+  });
+
   socket.on("disconnect", () => {
-    console.log("User Disconnected", socket.id);
+    socket.emit("offline", socket.id);
+
+    function deleteByVal(val) {
+      for (var key in users) {
+        if (users[key] == val) delete users[key];
+      }
+    }
+
+    deleteByVal(socket.id);
   });
 });
 

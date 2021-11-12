@@ -30,7 +30,7 @@ function App() {
 
     if (username !== "" && receiver !== "") {
       socket.emit("join_room", username + "--with--" + receiver);
-
+      socket.emit("login", username);
       setShowChat(true);
       // fetch(request)
       //   .then((response) => response.json())

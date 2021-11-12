@@ -1,35 +1,20 @@
 import React, { useEffect, useState, useRef } from "react";
-// import ScrollToBottom from "react-scroll-to-bottom";
-// import AutoScroll from "@brianmcallister/react-auto-scroll";
 import Moment from "react-moment";
 import SendIcon from "@material-ui/icons/Send";
-// import Picker from "emoji-picker-react";
 import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 import CloseIcon from "@mui/icons-material/Close";
 import "emoji-mart/css/emoji-mart.css";
-import { Picker } from "emoji-mart";
+import { motion, AnimateSharedLayout } from "framer-motion";
+import data from "emoji-mart/data/google.json";
+import { NimblePicker } from "emoji-mart";
+import AttachFileIcon from "@mui/icons-material/AttachFile";
 
 function Chat({ socket, username, receiver, chatData }) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
   const [showPicker, setShowPicker] = useState(false);
   const [showCloseIcon, setCloseIcon] = useState(false);
-
-  const sendMessage = async () => {
-    if (currentMessage !== "") {
-      const messageData = {
-        receiver: receiver,
-        sender: username,
-        message: currentMessage,
-        time: new Date(),
-      };
-
-      await socket.emit("send_message", messageData);
-      setMessageList((list) => [...list, messageData]);
-      setCurrentMessage("");
-    }
-  };
-
+  const [onlineStatus, setOnlineStatus] = useState("");
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -50,20 +35,43 @@ function Chat({ socket, username, receiver, chatData }) {
     setCloseIcon(false);
   };
 
-  useEffect(() => {
-    scrollToBottom();
-  }, [messageList]);
+  const sendMessage = async () => {
+    if (currentMessage !== "") {
+      const messageData = {
+        receiver: receiver,
+        sender: username,
+        message: currentMessage,
+        time: new Date(),
+      };
+
+      await socket.emit("send_message", messageData);
+      await socket.emit("login", username);
+      setMessageList((list) => [...list, messageData]);
+      setCurrentMessage("");
+    }
+  };
 
   useEffect(() => {
+    socket.on("online", (data) => {
+      if (receiver in JSON.parse(data)) {
+        setOnlineStatus("Online");
+      } else {
+        setOnlineStatus("Offline");
+      }
+    });
+
     socket.on("receive_message", (data) => {
       setMessageList((list) => [...list, data]);
     });
-    // setMessageList(chatData);
-  }, [socket]);
+  }, [socket, receiver]);
 
   useEffect(() => {
     setMessageList(chatData);
   }, [chatData]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messageList]);
 
   return (
     <div className="container">
@@ -73,7 +81,10 @@ function Chat({ socket, username, receiver, chatData }) {
             <div className="avatar">
               <img src="https://picsum.photos/g/40/40" alt="test" />
             </div>
-            <div className="name">{receiver}</div>
+            <div className="name">
+              {receiver}
+              <div className="online-font">{onlineStatus}</div>
+            </div>
           </div>
         </div>
         <div className="body">
@@ -109,44 +120,56 @@ function Chat({ socket, username, receiver, chatData }) {
         </div>
 
         {showPicker && (
-          <div className="emoji-container animated animatedFadeInUp fadeInUp">
-            <Picker
-              set="apple"
+          <motion.div className="emoji-container" layout>
+            <NimblePicker
+              include={["recent", "smileys", "people", "foods"]}
+              set="google"
+              data={data}
               style={{ width: "100%" }}
-              tooltip={false}
               showPreview={false}
               showSkinTones={false}
               onClick={onEmojiClick}
             />
-          </div>
+          </motion.div>
         )}
         <div className="foot">
-          {showCloseIcon && (
-            <div className="emoji-container animated animatedFadeInUp fadeInUp">
-              <button onClick={closeEmojiPicker}>
-                <CloseIcon></CloseIcon>
+          <AnimateSharedLayout>
+            {showCloseIcon && (
+              <>
+                <motion.button
+                  onClick={closeEmojiPicker}
+                  initial={false}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <CloseIcon></CloseIcon>
+                </motion.button>
+              </>
+            )}
+            <motion.div layout style={{ display: "flex", width: "100%" }}>
+              <button onClick={showEmojiPicker}>
+                <InsertEmoticonIcon></InsertEmoticonIcon>
               </button>
-            </div>
-          )}
-
-          <button onClick={showEmojiPicker}>
-            <InsertEmoticonIcon></InsertEmoticonIcon>
-          </button>
-          <input
-            type="text"
-            className="msg"
-            placeholder="Type a message..."
-            value={currentMessage}
-            onChange={(event) => {
-              setCurrentMessage(event.target.value);
-            }}
-            onKeyPress={(event) => {
-              event.key === "Enter" && sendMessage();
-            }}
-          />
-          <button type="submit" onClick={sendMessage}>
-            <SendIcon></SendIcon>
-          </button>
+              <button>
+                <AttachFileIcon></AttachFileIcon>
+              </button>
+              <input
+                type="text"
+                className="msg"
+                placeholder="Type a message..."
+                value={currentMessage}
+                onChange={(event) => {
+                  setCurrentMessage(event.target.value);
+                }}
+                onKeyPress={(event) => {
+                  event.key === "Enter" && sendMessage();
+                }}
+              />
+              <button type="submit" onClick={sendMessage}>
+                <SendIcon></SendIcon>
+              </button>
+            </motion.div>
+          </AnimateSharedLayout>
         </div>
       </div>
     </div>
