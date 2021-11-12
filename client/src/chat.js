@@ -3,10 +3,15 @@ import React, { useEffect, useState, useRef } from "react";
 // import AutoScroll from "@brianmcallister/react-auto-scroll";
 import Moment from "react-moment";
 import SendIcon from "@material-ui/icons/Send";
+import Picker from "emoji-picker-react";
+import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
 
 function Chat({ socket, username, receiver, chatData }) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
+  const [showPicker, setShowPicker] = useState(false);
+  // const [chosenEmoji, setChosenEmoji] = useState(null);
+  // const [inputStr, setInputStr] = useState("");
 
   const sendMessage = async () => {
     if (currentMessage !== "") {
@@ -27,6 +32,11 @@ function Chat({ socket, username, receiver, chatData }) {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const onEmojiClick = (event, emojiObject) => {
+    setCurrentMessage((prevInput) => prevInput + emojiObject.emoji);
+    // setShowPicker(false);
   };
 
   useEffect(() => {
@@ -78,7 +88,6 @@ function Chat({ socket, username, receiver, chatData }) {
               </div>
             );
           })}
-
           {/* <div className="typing">
             <div className="bubble">
               <div className="ellipsis dot_1"></div>
@@ -87,7 +96,23 @@ function Chat({ socket, username, receiver, chatData }) {
             </div>
           </div> */}
         </div>
+
+        {showPicker && (
+          <div className="emoji-container animated animatedFadeInUp fadeInUp">
+            <Picker
+              onEmojiClick={onEmojiClick}
+              pickerStyle={{
+                width: "100%",
+              }}
+              preload={true}
+              disableSearchBar={true}
+            />
+          </div>
+        )}
         <div className="foot">
+          <button onClick={() => setShowPicker((val) => !val)}>
+            <InsertEmoticonIcon></InsertEmoticonIcon>
+          </button>
           <input
             type="text"
             className="msg"
