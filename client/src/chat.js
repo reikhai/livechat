@@ -3,15 +3,17 @@ import React, { useEffect, useState, useRef } from "react";
 // import AutoScroll from "@brianmcallister/react-auto-scroll";
 import Moment from "react-moment";
 import SendIcon from "@material-ui/icons/Send";
-import Picker from "emoji-picker-react";
+// import Picker from "emoji-picker-react";
 import InsertEmoticonIcon from "@mui/icons-material/InsertEmoticon";
+import CloseIcon from "@mui/icons-material/Close";
+import "emoji-mart/css/emoji-mart.css";
+import { Picker } from "emoji-mart";
 
 function Chat({ socket, username, receiver, chatData }) {
   const [currentMessage, setCurrentMessage] = useState("");
   const [messageList, setMessageList] = useState([]);
   const [showPicker, setShowPicker] = useState(false);
-  // const [chosenEmoji, setChosenEmoji] = useState(null);
-  // const [inputStr, setInputStr] = useState("");
+  const [showCloseIcon, setCloseIcon] = useState(false);
 
   const sendMessage = async () => {
     if (currentMessage !== "") {
@@ -34,9 +36,18 @@ function Chat({ socket, username, receiver, chatData }) {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const onEmojiClick = (event, emojiObject) => {
-    setCurrentMessage((prevInput) => prevInput + emojiObject.emoji);
-    // setShowPicker(false);
+  const onEmojiClick = (emojiObject) => {
+    setCurrentMessage((prevInput) => prevInput + emojiObject.native);
+  };
+
+  const showEmojiPicker = () => {
+    setShowPicker(true);
+    setCloseIcon(true);
+  };
+
+  const closeEmojiPicker = () => {
+    setShowPicker(false);
+    setCloseIcon(false);
   };
 
   useEffect(() => {
@@ -100,17 +111,25 @@ function Chat({ socket, username, receiver, chatData }) {
         {showPicker && (
           <div className="emoji-container animated animatedFadeInUp fadeInUp">
             <Picker
-              onEmojiClick={onEmojiClick}
-              pickerStyle={{
-                width: "100%",
-              }}
-              preload={true}
-              disableSearchBar={true}
+              set="apple"
+              style={{ width: "100%" }}
+              tooltip={false}
+              showPreview={false}
+              showSkinTones={false}
+              onClick={onEmojiClick}
             />
           </div>
         )}
         <div className="foot">
-          <button onClick={() => setShowPicker((val) => !val)}>
+          {showCloseIcon && (
+            <div className="emoji-container animated animatedFadeInUp fadeInUp">
+              <button onClick={closeEmojiPicker}>
+                <CloseIcon></CloseIcon>
+              </button>
+            </div>
+          )}
+
+          <button onClick={showEmojiPicker}>
             <InsertEmoticonIcon></InsertEmoticonIcon>
           </button>
           <input
